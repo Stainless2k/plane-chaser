@@ -30,11 +30,16 @@ function PlaneCard({ card }: { card: GoodCard }) {
   if (error) return <div>An error has occurred: + {error.message}</div>;
 
   return (
-    <div className={'aspect-[974/670] overflow-hidden'}>
+    <div
+      className={'overflow-hidden'}
+      style={{ aspectRatio: planeAspectRatio.toString() }}
+    >
       <img
-        className={
-          'relative left-full aspect-[670/974] w-[calc(100%*(670/974))] origin-top-left rotate-90 object-fill'
-        }
+        style={{
+          aspectRatio: planeAspectRatio90degRot.toString(),
+          width: `${planeAspectRatio90degRot * 100}%`,
+        }}
+        className={'relative left-full origin-top-left rotate-90 object-fill'}
         src={data}
         alt={'planes'}
         width={670}
