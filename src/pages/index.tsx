@@ -19,7 +19,7 @@ function splitFirst<T>(array: T[]): [T, T[]] {
 }
 
 function useFetchCardPicture(card: GoodCard | undefined) {
-  return useQuery([card?.name], () =>
+  return useQuery<string, Error>([card?.name], () =>
     fetch(card?.image_uris.border_crop ?? '').then(async (res) =>
       URL.createObjectURL(await res.blob())
     )
@@ -47,7 +47,7 @@ function PlaneCard({
   error,
   data,
 }: {
-  error: unknown;
+  error: string | undefined;
   data: string | undefined;
 }) {
   let content = (
@@ -55,7 +55,7 @@ function PlaneCard({
       Walking...
     </div>
   );
-  if (error) return <div>An error has occurred: + {error.message}</div>;
+  if (error) return <div>An error has occurred: + {error}</div>;
   if (data) content = <RotatedCard90Deg src={data} />;
   return (
     <div
@@ -108,7 +108,7 @@ export default function App() {
         {deck.length < 1 ? 'shuffle' : isLoading ? 'wait' : 'walk'}
       </button>
       {topCard ? (
-        <PlaneCard error={error} data={data} />
+        <PlaneCard error={error?.message} data={data} />
       ) : (
         <div>No cards :(</div>
       )}
