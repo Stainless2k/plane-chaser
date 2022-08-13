@@ -26,6 +26,23 @@ function useFetchCardPicture(card: GoodCard | undefined) {
   );
 }
 
+function RotatedCard90Deg({ src }: { src: string }) {
+  return (
+    <div className={'h-full w-full'}>
+      <img
+        style={{
+          width: `${planeAspectRatio90degRot * 100}%`,
+        }}
+        className={'relative left-full origin-top-left rotate-90 object-fill'}
+        src={src}
+        alt={'planes'}
+        width={670}
+        height={974}
+      />
+    </div>
+  );
+}
+
 function PlaneCard({
   error,
   data,
@@ -39,23 +56,10 @@ function PlaneCard({
     </div>
   );
   if (error) return <div>An error has occurred: + {error.message}</div>;
-  if (data)
-    content = (
-      <img
-        style={{
-          aspectRatio: planeAspectRatio90degRot.toString(),
-          width: `${planeAspectRatio90degRot * 100}%`,
-        }}
-        className={'relative left-full origin-top-left rotate-90 object-fill'}
-        src={data}
-        alt={'planes'}
-        width={670}
-        height={974}
-      />
-    );
+  if (data) content = <RotatedCard90Deg src={data} />;
   return (
     <div
-      className={'h-full w-full overflow-hidden'}
+      className={'flex'}
       style={{ aspectRatio: planeAspectRatio.toString() }}
     >
       {content}
@@ -93,16 +97,15 @@ export default function App() {
 
   return (
     <>
-      <div>deck: {deck.length}</div>
-      <div>field: {field.length}</div>
       <button
+        className={'w-full bg-gradient-to-r from-sky-300 to-indigo-600'}
         onClick={() => {
           if (deck.length < 1) reset();
           else walk();
         }}
         disabled={isLoading}
       >
-        {deck.length < 1 ? 'shuffle' : 'walk'}
+        {deck.length < 1 ? 'shuffle' : isLoading ? 'wait' : 'walk'}
       </button>
       {topCard ? (
         <PlaneCard error={error} data={data} />
