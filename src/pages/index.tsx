@@ -18,22 +18,29 @@ function splitFirst<T>(array: T[]): [T, T[]] {
   return [head, _.tail(array)];
 }
 
-function PlaneCard({ card }: { card: GoodCard }) {
-  const { isLoading, error, data } = useQuery([card.name], () =>
-    fetch(card?.image_uris.border_crop).then(async (res) =>
+function useFetchCardPicture(card: GoodCard | undefined) {
+  return useQuery([card?.name], () =>
+    fetch(card?.image_uris.border_crop ?? '').then(async (res) =>
       URL.createObjectURL(await res.blob())
     )
   );
+}
 
-  if (isLoading) return <div>Walking...</div>;
-
+function PlaneCard({
+  error,
+  data,
+}: {
+  error: unknown;
+  data: string | undefined;
+}) {
+  let content = (
+    <div className={'m-auto h-fit w-fit animate-[ping_2s_ease-out_infinite]'}>
+      Walking...
+    </div>
+  );
   if (error) return <div>An error has occurred: + {error.message}</div>;
-
-  return (
-    <div
-      className={'overflow-hidden'}
-      style={{ aspectRatio: planeAspectRatio.toString() }}
-    >
+  if (data)
+    content = (
       <img
         style={{
           aspectRatio: planeAspectRatio90degRot.toString(),
@@ -45,6 +52,13 @@ function PlaneCard({ card }: { card: GoodCard }) {
         width={670}
         height={974}
       />
+    );
+  return (
+    <div
+      className={'h-full w-full overflow-hidden'}
+      style={{ aspectRatio: planeAspectRatio.toString() }}
+    >
+      {content}
     </div>
   );
 }
@@ -52,6 +66,9 @@ function PlaneCard({ card }: { card: GoodCard }) {
 export default function App() {
   const [deck, setDeck] = useState<GoodCard[]>([]);
   const [field, setField] = useState<GoodCard[]>([]);
+  const topCard = _.head(field);
+
+  const { error, data, isLoading } = useFetchCardPicture(topCard);
 
   useEffect(() => {
     setDeck(planes);
@@ -74,8 +91,6 @@ export default function App() {
     setField((prevState) => [drawnCard, ...prevState]);
   }
 
-  const topCard = _.head(field);
-
   return (
     <>
       <div>deck: {deck.length}</div>
@@ -85,10 +100,15 @@ export default function App() {
           if (deck.length < 1) reset();
           else walk();
         }}
+        disabled={isLoading}
       >
         {deck.length < 1 ? 'shuffle' : 'walk'}
       </button>
-      {topCard ? <PlaneCard card={topCard} /> : <div>No cards :(</div>}
+      {topCard ? (
+        <PlaneCard error={error} data={data} />
+      ) : (
+        <div>No cards :(</div>
+      )}
     </>
   );
 }
