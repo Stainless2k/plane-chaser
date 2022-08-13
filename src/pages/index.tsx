@@ -3,8 +3,9 @@ import _ from 'lodash';
 import all_planes from '../data/all_planes.json';
 import { Card } from 'scryfall-api';
 import Image from 'next/image';
+import { SetRequired } from 'type-fest';
 
-type GoodCard = Omit<Card, 'prices'>;
+type GoodCard = SetRequired<Omit<Card, 'prices'>, 'image_uris'>;
 
 const planes = _.shuffle(all_planes.cards) as GoodCard[];
 
@@ -58,7 +59,7 @@ export default function App() {
       {topCard && (
         <Image
           className={'rotate-90'}
-          src={topCard.image_uris!.border_crop}
+          src={topCard.image_uris.border_crop}
           alt={'planes'}
           layout="responsive"
           width={'100%'}
