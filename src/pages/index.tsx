@@ -7,7 +7,6 @@ import all_planes from '../data/all_planes.json';
 
 type GoodCard = SetRequired<Omit<Card, 'prices'>, 'image_uris'>;
 
-const planes = _.shuffle(all_planes.cards) as GoodCard[];
 const planeAspectRatio = 974 / 670;
 const planeAspectRatio90degRot = 670 / 974;
 
