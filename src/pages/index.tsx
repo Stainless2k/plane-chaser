@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import _ from 'lodash';
-import all_planes from '../data/all_planes.json';
 import { Card } from 'scryfall-api';
 import { SetRequired } from 'type-fest';
 import { useQuery } from '@tanstack/react-query';
+import all_planes from '../data/all_planes.json';
 
 type GoodCard = SetRequired<Omit<Card, 'prices'>, 'image_uris'>;
 
@@ -67,16 +67,19 @@ function PlaneCard({
   );
 }
 
-export default function App() {
-  const [deck, setDeck] = useState<GoodCard[]>([]);
+export async function getStaticProps() {
+  const planes = _.shuffle(all_planes.cards) as GoodCard[];
+  return {
+    props: { cards: planes }, // will be passed to the page component as props
+  };
+}
+
+export default function App({ cards }: { cards: GoodCard[] }) {
+  const [deck, setDeck] = useState<GoodCard[]>(cards);
   const [field, setField] = useState<GoodCard[]>([]);
   const topCard = _.head(field);
 
   const { error, data, isLoading } = useFetchCardPicture(topCard);
-
-  useEffect(() => {
-    setDeck(planes);
-  }, []);
 
   function reset() {
     const [newFiled, newDeck] = splitFirst(field);
