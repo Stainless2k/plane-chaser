@@ -3,14 +3,11 @@ import _ from 'lodash';
 import { Card, ImageUris } from 'scryfall-api';
 import { useQuery } from '@tanstack/react-query';
 import all_planes from '../data/all_planes.json';
-import Image from 'next/future/image';
+import { PlaneCard } from '../comp/PlaneCard';
 
 type GoodCard = Pick<Card, 'name'> & {
   image_uris: Pick<ImageUris, 'border_crop'>;
 };
-
-const planeAspectRatio = 974 / 670;
-const planeAspectRatio90degRot = 670 / 974;
 
 function splitFirst<T>(array: T[]): [T, T[]] {
   const head = _.head(array);
@@ -24,60 +21,6 @@ function useFetchCardPicture(card: GoodCard | undefined) {
     fetch(card?.image_uris.border_crop ?? '').then(async (res) =>
       URL.createObjectURL(await res.blob())
     )
-  );
-}
-
-function RotatedCard90Deg({ src }: { src: string }) {
-  return (
-    <div className={'h-full w-full overflow-hidden'}>
-      <Image
-        style={{
-          width: `${planeAspectRatio90degRot * 100}%`,
-        }}
-        className={
-          'relative inset-1/2 -translate-y-1/2 -translate-x-1/2 rotate-90 object-fill'
-        }
-        src={src}
-        width={670}
-        height={974}
-        unoptimized
-      />
-    </div>
-  );
-}
-
-function PlaneCardRot90Deg({
-  error,
-  data,
-}: {
-  error: string | undefined;
-  data: string | undefined;
-}) {
-  let content = (
-    <div
-      className={
-        'relative inset-y-1/2 m-auto h-fit w-fit origin-center -translate-y-1/2 animate-[ping_2s_ease-out_infinite]'
-      }
-    >
-      Walking...
-    </div>
-  );
-  if (error) return <div>An error has occurred: + {error}</div>;
-  if (data)
-    content = (
-      <div key={data} className={'animate-pop h-full w-full'}>
-        <RotatedCard90Deg src={data} />
-      </div>
-    );
-  return (
-    <div
-      className={
-        'relative inset-y-1/2 m-auto max-h-screen -translate-y-1/2 text-clip'
-      }
-      style={{ aspectRatio: planeAspectRatio.toString() }}
-    >
-      {content}
-    </div>
   );
 }
 
@@ -126,11 +69,11 @@ export default function App({ cards }: { cards: GoodCard[] }) {
   return (
     <div
       className={
-        'background-animate h-screen w-screen bg-gradient-to-r from-pink-800 via-violet-600 to-sky-900'
+        'background-animate flex h-screen w-screen items-center justify-center'
       }
       onClick={() => onClick()}
     >
-      <PlaneCardRot90Deg error={error?.message} data={data} />
+      <PlaneCard error={error?.message} data={data} />
     </div>
   );
 }
