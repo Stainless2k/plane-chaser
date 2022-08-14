@@ -63,7 +63,12 @@ function PlaneCardRot90Deg({
     </div>
   );
   if (error) return <div>An error has occurred: + {error}</div>;
-  if (data) content = <RotatedCard90Deg src={data} />;
+  if (data)
+    content = (
+      <div key={data} className={'animate-pop h-full w-full'}>
+        <RotatedCard90Deg src={data} />
+      </div>
+    );
   return (
     <div
       className={
@@ -125,9 +130,7 @@ export default function App({ cards }: { cards: GoodCard[] }) {
       }
       onClick={() => onClick()}
     >
-      <div key={data} className={'animate-pop h-full w-full'}>
-        <PlaneCardRot90Deg error={error?.message} data={data} />
-      </div>
+      <PlaneCardRot90Deg error={error?.message} data={data} />
     </div>
   );
 }
