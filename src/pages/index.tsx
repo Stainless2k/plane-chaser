@@ -5,7 +5,7 @@ import { SetRequired } from 'type-fest';
 import { useQuery } from '@tanstack/react-query';
 import all_planes from '../data/all_planes.json';
 
-type GoodCard = SetRequired<Omit<Card, 'prices'>, 'image_uris'>;
+type GoodCard = SetRequired<Pick<Card, 'name' | 'image_uris'>, 'image_uris'>;
 
 const planeAspectRatio = 974 / 670;
 const planeAspectRatio90degRot = 670 / 974;
@@ -67,7 +67,12 @@ function PlaneCard({
 }
 
 export async function getStaticProps() {
-  const planes = _.shuffle(all_planes.cards) as GoodCard[];
+  const planes: GoodCard[] = _.shuffle(all_planes.cards).map(
+    ({ name, image_uris }) => ({
+      name,
+      image_uris,
+    })
+  );
   return {
     props: { cards: planes }, // will be passed to the page component as props
   };
