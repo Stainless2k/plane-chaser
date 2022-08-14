@@ -38,9 +38,9 @@ function RotatedCard90Deg({ src }: { src: string }) {
           'relative inset-1/2 -translate-y-1/2 -translate-x-1/2 rotate-90 object-fill'
         }
         src={src}
-        alt={'planes'}
         width={670}
         height={974}
+        unoptimized
       />
     </div>
   );
@@ -66,7 +66,9 @@ function PlaneCardRot90Deg({
   if (data) content = <RotatedCard90Deg src={data} />;
   return (
     <div
-      className={'relative inset-y-1/2 m-auto max-h-screen -translate-y-1/2 '}
+      className={
+        'relative inset-y-1/2 m-auto max-h-screen -translate-y-1/2 text-clip'
+      }
       style={{ aspectRatio: planeAspectRatio.toString() }}
     >
       {content}
@@ -123,7 +125,9 @@ export default function App({ cards }: { cards: GoodCard[] }) {
       }
       onClick={() => onClick()}
     >
-      <PlaneCardRot90Deg error={error?.message} data={data} />
+      <div key={data} className={'animate-pop h-full w-full'}>
+        <PlaneCardRot90Deg error={error?.message} data={data} />
+      </div>
     </div>
   );
 }
