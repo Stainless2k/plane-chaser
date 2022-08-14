@@ -13,6 +13,5 @@ function defineNextConfig(config) {
 export default defineNextConfig({
   reactStrictMode: true,
   swcMinify: true,
-  images: { domains: ['c1.scryfall.com'] },
-  basePath: '/plane-chaser'
+  images: { domains: ['c1.scryfall.com'] }
 });
