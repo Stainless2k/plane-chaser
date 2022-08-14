@@ -29,12 +29,14 @@ function useFetchCardPicture(card: GoodCard | undefined) {
 
 function RotatedCard90Deg({ src }: { src: string }) {
   return (
-    <div className={'w-full'}>
+    <div className={'h-full w-full overflow-hidden'}>
       <Image
         style={{
           width: `${planeAspectRatio90degRot * 100}%`,
         }}
-        className={'relative left-full origin-top-left rotate-90 object-fill'}
+        className={
+          'relative inset-1/2 -translate-y-1/2 -translate-x-1/2 rotate-90 object-fill'
+        }
         src={src}
         alt={'planes'}
         width={670}
@@ -52,19 +54,14 @@ function PlaneCard({
   data: string | undefined;
 }) {
   let content = (
-    <div className={'m-auto h-fit w-fit animate-[ping_2s_ease-out_infinite]'}>
+    <div className={'relative inset-y-1/2 m-auto h-fit w-fit -translate-y-1/2'}>
       Walking...
     </div>
   );
   if (error) return <div>An error has occurred: + {error}</div>;
   if (data) content = <RotatedCard90Deg src={data} />;
   return (
-    <div
-      className={'flex'}
-      style={{ aspectRatio: planeAspectRatio.toString() }}
-    >
-      {content}
-    </div>
+    <div style={{ aspectRatio: planeAspectRatio.toString() }}>{content}</div>
   );
 }
 
