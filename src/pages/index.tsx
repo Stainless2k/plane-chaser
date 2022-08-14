@@ -46,7 +46,7 @@ function RotatedCard90Deg({ src }: { src: string }) {
   );
 }
 
-function PlaneCard({
+function PlaneCardRot90Deg({
   error,
   data,
 }: {
@@ -54,14 +54,23 @@ function PlaneCard({
   data: string | undefined;
 }) {
   let content = (
-    <div className={'relative inset-y-1/2 m-auto h-fit w-fit -translate-y-1/2'}>
+    <div
+      className={
+        'relative inset-y-1/2 m-auto h-fit w-fit origin-center -translate-y-1/2 animate-[ping_2s_ease-out_infinite]'
+      }
+    >
       Walking...
     </div>
   );
   if (error) return <div>An error has occurred: + {error}</div>;
   if (data) content = <RotatedCard90Deg src={data} />;
   return (
-    <div style={{ aspectRatio: planeAspectRatio.toString() }}>{content}</div>
+    <div
+      className={'relative inset-y-1/2 m-auto max-h-screen -translate-y-1/2 '}
+      style={{ aspectRatio: planeAspectRatio.toString() }}
+    >
+      {content}
+    </div>
   );
 }
 
@@ -78,11 +87,12 @@ export async function getStaticProps() {
 }
 
 export default function App({ cards }: { cards: GoodCard[] }) {
-  const [deck, setDeck] = useState<GoodCard[]>(cards);
-  const [field, setField] = useState<GoodCard[]>([]);
+  const [initField, initDeck] = splitFirst(cards);
+  const [deck, setDeck] = useState<GoodCard[]>([initField]);
+  const [field, setField] = useState<GoodCard[]>(initDeck);
   const topCard = _.head(field);
 
-  const { error, data, isLoading } = useFetchCardPicture(topCard);
+  const { error, data } = useFetchCardPicture(topCard);
 
   function reset() {
     const [newFiled, newDeck] = splitFirst(field);
@@ -101,23 +111,19 @@ export default function App({ cards }: { cards: GoodCard[] }) {
     setField((prevState) => [drawnCard, ...prevState]);
   }
 
+  function onClick() {
+    if (deck.length < 1) reset();
+    else walk();
+  }
+
   return (
-    <>
-      <button
-        className={'w-full bg-gradient-to-r from-sky-300 to-indigo-600'}
-        onClick={() => {
-          if (deck.length < 1) reset();
-          else walk();
-        }}
-        disabled={isLoading}
-      >
-        {deck.length < 1 ? 'shuffle' : isLoading ? 'wait' : 'walk'}
-      </button>
-      {topCard ? (
-        <PlaneCard error={error?.message} data={data} />
-      ) : (
-        <div>No cards :(</div>
-      )}
-    </>
+    <div
+      className={
+        'background-animate h-screen w-screen bg-gradient-to-r from-pink-800 via-violet-600 to-sky-900'
+      }
+      onClick={() => onClick()}
+    >
+      <PlaneCardRot90Deg error={error?.message} data={data} />
+    </div>
   );
 }
