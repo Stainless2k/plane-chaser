@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Card, ImageUris } from 'scryfall-api';
 import { useQuery } from '@tanstack/react-query';
 import all_planes from '../data/all_planes.json';
+import Image from 'next/future/image';
 
 type GoodCard = Pick<Card, 'name'> & {
   image_uris: Pick<ImageUris, 'border_crop'>;
@@ -28,8 +29,8 @@ function useFetchCardPicture(card: GoodCard | undefined) {
 
 function RotatedCard90Deg({ src }: { src: string }) {
   return (
-    <div className={'h-full w-full'}>
-      <img
+    <div className={'w-full'}>
+      <Image
         style={{
           width: `${planeAspectRatio90degRot * 100}%`,
         }}
