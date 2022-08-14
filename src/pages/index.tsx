@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import _ from 'lodash';
-import { Card } from 'scryfall-api';
-import { SetRequired } from 'type-fest';
+import { Card, ImageUris } from 'scryfall-api';
 import { useQuery } from '@tanstack/react-query';
 import all_planes from '../data/all_planes.json';
 
-type GoodCard = SetRequired<Pick<Card, 'name' | 'image_uris'>, 'image_uris'>;
+type GoodCard = Pick<Card, 'name'> & {
+  image_uris: Pick<ImageUris, 'border_crop'>;
+};
 
 const planeAspectRatio = 974 / 670;
 const planeAspectRatio90degRot = 670 / 974;
@@ -68,9 +69,9 @@ function PlaneCard({
 
 export async function getStaticProps() {
   const planes: GoodCard[] = _.shuffle(all_planes.cards).map(
-    ({ name, image_uris }) => ({
+    ({ name, image_uris: { border_crop } }) => ({
       name,
-      image_uris,
+      image_uris: { border_crop },
     })
   );
   return {
