@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
 import _ from 'lodash';
 import { Card, ImageUris } from 'scryfall-api';
 import { useQuery } from '@tanstack/react-query';
@@ -24,46 +24,69 @@ function useFetchCardPicture(card: GoodCard | undefined) {
   );
 }
 
+type Action = { type: 'walk' } | { type: 'reset' };
+
+type GameState = { field: GoodCard[]; deck: GoodCard[] };
+
+function reset({ deck, field }: GameState): GameState {
+  const [topField, restField] = splitFirst(field);
+  return {
+    field: [topField],
+    deck: _.shuffle([...deck, ...restField]),
+  };
+}
+
+function walk(gameState: GameState): GameState {
+  let currentState: GameState = gameState;
+
+  if (currentState.deck.length < 1) {
+    currentState = reset(currentState);
+  }
+  const [drawnCard, restDeck] = splitFirst(currentState.deck);
+
+  return {
+    field: [drawnCard, ...currentState.field],
+    deck: restDeck,
+  };
+}
+
+function gameLogic(gameState: GameState, action: Action): GameState {
+  switch (action.type) {
+    case 'walk': {
+      return walk(gameState);
+    }
+    case 'reset': {
+      return reset(gameState);
+    }
+  }
+}
+
 export async function getStaticProps() {
-  const planes: GoodCard[] = _.shuffle(all_planes.cards).map(
+  const planes: GoodCard[] = all_planes.cards.map(
     ({ name, image_uris: { border_crop } }) => ({
       name,
       image_uris: { border_crop },
     })
   );
+
   return {
-    props: { cards: planes }, // will be passed to the page component as props
+    props: { cards: _.shuffle(planes) }, // will be passed to the page component as props
   };
 }
 
 export default function App({ cards }: { cards: GoodCard[] }) {
   const [initField, initDeck] = splitFirst(cards);
-  const [deck, setDeck] = useState<GoodCard[]>([initField]);
-  const [field, setField] = useState<GoodCard[]>(initDeck);
+  const [{ field }, dispatch] = useReducer(gameLogic, {
+    field: [initField],
+    deck: initDeck,
+  });
+
   const topCard = _.head(field);
 
   const { error, data } = useFetchCardPicture(topCard);
 
-  function reset() {
-    const [newFiled, newDeck] = splitFirst(field);
-    setDeck(_.shuffle(newDeck));
-    setField([newFiled]);
-  }
-
-  function draw() {
-    const [card, rest] = splitFirst(deck);
-    setDeck(rest);
-    return card;
-  }
-
-  function walk() {
-    const drawnCard = draw();
-    setField((prevState) => [drawnCard, ...prevState]);
-  }
-
   function onClick() {
-    if (deck.length < 1) reset();
-    else walk();
+    dispatch({ type: 'walk' });
   }
 
   return (
