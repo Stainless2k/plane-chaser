@@ -17,5 +17,11 @@ export async function getStaticProps() {
 }
 
 export default function EternitiesMap({ cards }: { cards: GoodCard[] }) {
-  return <div></div>;
+  return (
+    <div
+      className={
+        'background-animate flex h-screen w-screen items-center justify-center'
+      }
+    ></div>
+  );
 }

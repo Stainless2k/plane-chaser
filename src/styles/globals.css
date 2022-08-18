@@ -3,19 +3,26 @@
 @tailwind utilities;
 
 .background-animate {
-    background-image: linear-gradient(0deg, rgb(16, 185, 129), rgb(16, 27, 62), rgb(12, 74, 110));
-    background-size: 400% 400%;
-    animation: bg-animate 8s ease infinite;
+    /*background-image: radial-gradient(ellipse, rgb(16, 185, 129), rgb(16, 27, 62), rgb(12, 74, 110));*/
+    background-image: conic-gradient(from 90deg at 50% 125%, #1f005c, #003298, #005ac6, #007fdc, #00a2d3, #00c4ae, #00e474, #00ff00, #1f005c, #003298, #005ac6, #007fdc, #00a2d3, #00c4ae, #00e474, #00ff00);;
+    background-size: 300% 300%;
+    animation: bg-animate 15s ease-in-out infinite;
 }
 
 @keyframes bg-animate {
-    0%,
-    100% {
-        background-position: 50% 0%
+    0%, 100% {
+        background-position: 0% 0%
+    }
+    25% {
+        background-position: 100% 0%
     }
     50% {
-        background-position: 50% 100%
+        background-position: 100% 100%
     }
+    75% {
+        background-position: 0% 100%
+    }
+
 
 }
 
