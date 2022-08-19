@@ -1,5 +1,4 @@
-import { Card, ImageUris } from 'scryfall-api';
-
-export type GoodCard = Pick<Card, 'name'> & {
-  image_uris: Pick<ImageUris, 'border_crop'>;
+export type GoodCard = {
+  name: string;
+  image_uris: { border_crop: string };
 };
