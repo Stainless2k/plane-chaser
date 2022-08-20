@@ -21,7 +21,7 @@ export class Grid<T> {
   private readonly __cells: (T | undefined)[];
 
   constructor(rowLength: number, colLength: number, items?: (T | undefined)[]) {
-    this.__cells = items ?? Array(rowLength * colLength);
+    this.__cells = items ?? Array(rowLength * colLength).fill(undefined);
     this.rowLength = rowLength;
     this.colLength = colLength;
   }
@@ -90,8 +90,8 @@ export class Grid<T> {
     const newCells = this.__cells.slice(0);
 
     const start = row * this.rowLength;
-    for (let i = start; i < this.rowLength; i++) {
-      newCells[start + 1] = undefined;
+    for (let i = 0; i < this.rowLength; i++) {
+      newCells[start + i] = undefined;
     }
 
     return new Grid(this.rowLength, this.colLength, newCells);
