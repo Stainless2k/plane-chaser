@@ -1,6 +1,6 @@
 import Image from 'next/future/image';
 
-const planeAspectRatio = 670 / 974;
+export const planeAspectRatio = 670 / 974;
 
 function RotatedCard({ src }: { src: string }) {
   return (
@@ -35,11 +35,6 @@ export function PlaneCard({
       </div>
     );
   return (
-    <div
-      className={'max-h-screen'}
-      style={{ aspectRatio: planeAspectRatio.toString() }}
-    >
-      {content}
-    </div>
+    <div style={{ aspectRatio: planeAspectRatio.toString() }}>{content}</div>
   );
 }
