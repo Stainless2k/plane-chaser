@@ -1,5 +1,11 @@
 import { notEmpty } from './NotEmpty';
-import { CARDINAL_DIRECTIONS, Grid, Point } from './Grid';
+import {
+  addPoints,
+  CARDINAL_DIRECTIONS,
+  DIRECTION_VECTORS,
+  Grid,
+  Point,
+} from './Grid';
 import { takeRandom } from './RNG';
 
 const CORNERS: Point[] = [
@@ -61,15 +67,18 @@ function returnToDeck<T>(
   { deck, field }: GameState<T>
 ): GameState<T> {
   const removed = field.get(row, col);
+  // nothing to return if the space is empty
   if (!removed) return { deck, field };
 
   return { deck: deck.concat(removed), field: field.delete(row, col) };
 }
 
 function returnCornersToDeck<T>({ deck, field }: GameState<T>): GameState<T> {
+  // remove empty so we dont put it into the deck
   const removed = CORNERS.map(([row, col]) => field.get(row, col)).filter(
     notEmpty
   );
+  // nothing to do if all coners were empty
   if (removed.length < 1) return { deck, field };
 
   return { deck: deck.concat(removed), field: field.deleteMany(CORNERS) };
@@ -119,21 +128,35 @@ function move<T>(
   direction: CARDINAL_DIRECTIONS,
   state: GameState<T>
 ): GameState<T> {
+  // remove opposite edge...
   const oppositeDirection = OPPOSITE_DIRECTION[direction];
   const { deck, field } = returnOuterRowOrColToDeck(oppositeDirection, state);
 
+  // ...because we push the grid in opposite direction to move in direction
   return {
     field: field.shift(oppositeDirection),
     deck: deck,
   };
 }
 
+const MIDDLE: Point = [3, 3];
+
 export function walk<T>(
   direction: CARDINAL_DIRECTIONS,
   { deck, field }: GameState<T>
 ): GameState<T> {
-  // TODO
-  // discover()
-  // move()
-  // remove coners
+  const newMiddle = addPoints(DIRECTION_VECTORS[direction], MIDDLE);
+  const newMiddleNeighbours = field.getAdjacentPoints(...newMiddle);
+  // reveal new planes
+  const discoveredState = newMiddleNeighbours.reduce(
+    (gameState, neighbour) => discover(neighbour, gameState),
+    {
+      field,
+      deck,
+    }
+  );
+  // move selected plane into the middle
+  const movedState = move(direction, discoveredState);
+  // remove corners
+  return returnCornersToDeck(movedState);
 }

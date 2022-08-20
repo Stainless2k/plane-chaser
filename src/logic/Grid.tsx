@@ -1,5 +1,9 @@
 export type Point = [number, number];
 
+export function addPoints(a: Point, b: Point): Point {
+  return [a[0] + b[0], a[1] + b[1]];
+}
+
 export enum CARDINAL_DIRECTIONS {
   UP = 'UP',
   DOWN = 'DOWN',
@@ -7,7 +11,7 @@ export enum CARDINAL_DIRECTIONS {
   RIGHT = 'RIGHT',
 }
 
-const DIRECTION_VECTORS: Record<CARDINAL_DIRECTIONS, Point> = {
+export const DIRECTION_VECTORS: Record<CARDINAL_DIRECTIONS, Point> = {
   [CARDINAL_DIRECTIONS.UP]: [-1, 0],
   [CARDINAL_DIRECTIONS.RIGHT]: [0, +1],
   [CARDINAL_DIRECTIONS.DOWN]: [+1, 0],
