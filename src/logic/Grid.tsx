@@ -126,27 +126,63 @@ export class Grid<T> {
           this.rowLength,
           this.colLength,
           // take all except first row and add new one at bottom
-          this.__cells.slice(this.rowLength).concat(Array(this.rowLength))
+          this.__cells
+            .slice(this.rowLength)
+            .concat(Array(this.rowLength).fill(undefined))
         );
       case CARDINAL_DIRECTIONS.DOWN:
         return new Grid(
           this.rowLength,
           this.colLength,
           // take all except last row and add new one at top
-          Array(this.rowLength).concat(
-            this.__cells.slice(0, -(this.rowLength - 1))
+          Array(this.rowLength)
+            .fill(undefined)
+            .concat(this.__cells.slice(0, -(this.rowLength - 1)))
+        );
+      case CARDINAL_DIRECTIONS.LEFT: {
+        return new Grid(
+          this.rowLength,
+          this.colLength,
+          // for each row remove first and add empty to end
+          this.__getAllRows().reduce(
+            (previousValue, currentValue) =>
+              previousValue.concat(currentValue.slice(1), undefined),
+            []
           )
         );
-      case CARDINAL_DIRECTIONS.LEFT:
-        // for each row
-        // remove fist element and add one at the end
-        break;
+      }
       case CARDINAL_DIRECTIONS.RIGHT:
-        break;
+        return new Grid(
+          this.rowLength,
+          this.colLength,
+          // for each row remove last and add empty to start
+          this.__getAllRows().reduce(
+            (previousValue, currentValue) =>
+              previousValue.concat(undefined, currentValue.slice(0, -1)),
+            []
+          )
+        );
     }
+  }
+
+  private __getAllRows(): (T | undefined)[][] {
+    const rows = Array(this.rowLength);
+    for (let i = 0; i < this.rowLength; i++) {
+      rows.push(this.getRow(i));
+    }
+    return rows;
   }
 
   toArray() {
     return this.__cells.slice(0);
+  }
+
+  toString() {
+    const rows = [];
+    for (let i = 0; i < this.rowLength; i++) {
+      rows.push(this.getRow(i).join(' | '));
+    }
+
+    return rows.join('\n');
   }
 }

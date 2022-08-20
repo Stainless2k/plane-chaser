@@ -39,7 +39,7 @@ const CORNERS: [number, number][] = [
   [6, 6],
 ];
 
-type GameState = { field: Grid<GoodCard>; deck: GoodCard[] };
+type GameState = { field: Grid<T>; deck: T[] };
 type Cord = { row: number; col: number };
 
 enum HELLRIDE_DIRECTIONS {
@@ -127,7 +127,7 @@ function move(direction: CARDINAL_DIRECTIONS, state: GameState): GameState {
 
   switch (direction) {
     case CARDINAL_DIRECTIONS.UP:
-      const newField = outerReturnedState.field.break;
+      break;
     case CARDINAL_DIRECTIONS.DOWN:
       break;
     case CARDINAL_DIRECTIONS.LEFT:
