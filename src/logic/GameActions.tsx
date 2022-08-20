@@ -135,7 +135,6 @@ function move<T>(
   // remove opposite edge...
   const oppositeDirection = OPPOSITE_DIRECTION[direction];
   const { deck, gameMap } = returnOuterRowOrColToDeck(oppositeDirection, state);
-
   // ...because we push the grid in opposite direction to move in direction
   return {
     gameMap: gameMap.shift(oppositeDirection),
