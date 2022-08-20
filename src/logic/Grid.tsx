@@ -5,16 +5,6 @@ export enum CARDINAL_DIRECTIONS {
   RIGHT = 'RIGHT',
 }
 
-export const OPPOSITE_DIRECTION: Record<
-  CARDINAL_DIRECTIONS,
-  CARDINAL_DIRECTIONS
-> = {
-  [CARDINAL_DIRECTIONS.UP]: CARDINAL_DIRECTIONS.DOWN,
-  [CARDINAL_DIRECTIONS.DOWN]: CARDINAL_DIRECTIONS.UP,
-  [CARDINAL_DIRECTIONS.LEFT]: CARDINAL_DIRECTIONS.RIGHT,
-  [CARDINAL_DIRECTIONS.RIGHT]: CARDINAL_DIRECTIONS.LEFT,
-};
-
 export class Grid<T> {
   readonly rowLength: number;
   readonly colLength: number;
@@ -34,17 +24,25 @@ export class Grid<T> {
   }
 
   private __checkColIndex(col: number) {
-    if (col >= this.colLength)
+    if (col >= this.colLength || col < 0)
       throw Error(
         `INDEX ${col} IS OUT OF BOUNDS FOR COL SIZE ${this.colLength}`
       );
   }
 
   private __checkRowIndex(row: number) {
-    if (row >= this.rowLength)
+    if (row >= this.rowLength || row < 0)
       throw Error(
         `INDEX ${row} IS OUT OF BOUNDS FOR ROW SIZE ${this.rowLength}`
       );
+  }
+
+  private __getAllRows(): (T | undefined)[][] {
+    const rows = Array(this.rowLength);
+    for (let i = 0; i < this.rowLength; i++) {
+      rows.push(this.getRow(i));
+    }
+    return rows;
   }
 
   get(row: number, col: number): T | undefined {
@@ -163,14 +161,6 @@ export class Grid<T> {
           )
         );
     }
-  }
-
-  private __getAllRows(): (T | undefined)[][] {
-    const rows = Array(this.rowLength);
-    for (let i = 0; i < this.rowLength; i++) {
-      rows.push(this.getRow(i));
-    }
-    return rows;
   }
 
   toArray() {
