@@ -160,7 +160,7 @@ export class Grid<T> {
           // take all except last row and add new one at top
           Array(this.rowLength)
             .fill(undefined)
-            .concat(this.__cells.slice(0, -this.rowLength)
+            .concat(this.__cells.slice(0, -this.rowLength))
         );
       case CARDINAL_DIRECTIONS.LEFT: {
         return new Grid(
@@ -201,8 +201,3 @@ export class Grid<T> {
     return rows.join('\n');
   }
 }
-
-const a = new Grid(3, 3, [...Array(9).keys()]);
-
-console.log(a.toString());
-console.log(a.shift('DOWN').toArray());
