@@ -49,7 +49,7 @@ export const OPPOSITE_DIRECTION: Record<
   [CARDINAL_DIRECTIONS.RIGHT]: CARDINAL_DIRECTIONS.LEFT,
 };
 
-type GameState<T> = { map: Grid<T>; deck: T[] };
+type GameState<T> = { gameMap: Grid<T>; deck: T[] };
 
 export enum HELLRIDE_DIRECTIONS {
   UP_LEFT = 'UP_LEFT',
@@ -64,64 +64,68 @@ function draw<T>(deck: T[]): [T, T[]] {
 
 function returnToDeck<T>(
   [row, col]: Point,
-  { deck, map }: GameState<T>
+  { deck, gameMap }: GameState<T>
 ): GameState<T> {
-  const removed = map.get(row, col);
+  const removed = gameMap.get(row, col);
   // nothing to return if the space is empty
-  if (!removed) return { deck, map };
+  if (!removed) return { deck, gameMap };
 
-  return { deck: deck.concat(removed), map: map.delete(row, col) };
+  return { deck: deck.concat(removed), gameMap: gameMap.delete(row, col) };
 }
 
-function returnCornersToDeck<T>({ deck, map }: GameState<T>): GameState<T> {
+function returnCornersToDeck<T>({ deck, gameMap }: GameState<T>): GameState<T> {
   // remove empty so we dont put it into the deck
-  const removed = CORNERS.map(([row, col]) => map.get(row, col)).filter(
+  const removed = CORNERS.map(([row, col]) => gameMap.get(row, col)).filter(
     notEmpty
   );
   // nothing to do if all coners were empty
-  if (removed.length < 1) return { deck, map };
+  if (removed.length < 1) return { deck, gameMap };
 
-  return { deck: deck.concat(removed), map: map.deleteMany(CORNERS) };
+  return { deck: deck.concat(removed), gameMap: gameMap.deleteMany(CORNERS) };
 }
 
 function returnOuterRowOrColToDeck<T>(
   direction: CARDINAL_DIRECTIONS,
-  { deck, map }: GameState<T>
+  { deck, gameMap }: GameState<T>
 ): GameState<T> {
   switch (direction) {
     case CARDINAL_DIRECTIONS.UP:
       return {
-        deck: deck.concat(map.getRow(0).filter(notEmpty)),
-        map: map.deleteRow(0),
+        deck: deck.concat(gameMap.getRow(0).filter(notEmpty)),
+        gameMap: gameMap.deleteRow(0),
       };
     case CARDINAL_DIRECTIONS.DOWN:
       return {
-        deck: deck.concat(map.getRow(map.colLength - 1).filter(notEmpty)),
-        map: map.deleteRow(map.colLength - 1),
+        deck: deck.concat(
+          gameMap.getRow(gameMap.colLength - 1).filter(notEmpty)
+        ),
+        gameMap: gameMap.deleteRow(gameMap.colLength - 1),
       };
     case CARDINAL_DIRECTIONS.LEFT:
       return {
-        deck: deck.concat(map.getCol(0).filter(notEmpty)),
-        map: map.deleteCol(0),
+        deck: deck.concat(gameMap.getCol(0).filter(notEmpty)),
+        gameMap: gameMap.deleteCol(0),
       };
     case CARDINAL_DIRECTIONS.RIGHT:
       return {
-        deck: deck.concat(map.getCol(map.rowLength - 1).filter(notEmpty)),
-        map: map.deleteCol(map.rowLength - 1),
+        deck: deck.concat(
+          gameMap.getCol(gameMap.rowLength - 1).filter(notEmpty)
+        ),
+        gameMap: gameMap.deleteCol(gameMap.rowLength - 1),
       };
   }
 }
 
 function discover<T>(
   [row, col]: Point,
-  { deck, map }: GameState<T>
+  { deck, gameMap }: GameState<T>
 ): GameState<T> {
   // already discovered do nothing
-  if (map.get(row, col) != undefined) return { deck, map };
+  if (gameMap.get(row, col) != undefined) return { deck, gameMap };
 
   const [discovered, restDeck] = draw(deck);
 
-  return { deck: restDeck, map: map.set(row, col, discovered) };
+  return { deck: restDeck, gameMap: gameMap.set(row, col, discovered) };
 }
 
 function move<T>(
@@ -130,11 +134,11 @@ function move<T>(
 ): GameState<T> {
   // remove opposite edge...
   const oppositeDirection = OPPOSITE_DIRECTION[direction];
-  const { deck, map } = returnOuterRowOrColToDeck(oppositeDirection, state);
+  const { deck, gameMap } = returnOuterRowOrColToDeck(oppositeDirection, state);
 
   // ...because we push the grid in opposite direction to move in direction
   return {
-    map: map.shift(oppositeDirection),
+    gameMap: gameMap.shift(oppositeDirection),
     deck: deck,
   };
 }
@@ -143,15 +147,15 @@ const MIDDLE: Point = [3, 3];
 
 export function walk<T>(
   direction: CARDINAL_DIRECTIONS,
-  { deck, map }: GameState<T>
+  { deck, gameMap }: GameState<T>
 ): GameState<T> {
   const newMiddle = addPoints(DIRECTION_VECTORS[direction], MIDDLE);
-  const newMiddleNeighbours = map.getAdjacentPoints(...newMiddle);
+  const newMiddleNeighbours = gameMap.getAdjacentPoints(...newMiddle);
   // reveal new planes
   const discoveredState = newMiddleNeighbours.reduce(
     (gameState, neighbour) => discover(neighbour, gameState),
     {
-      map,
+      gameMap,
       deck,
     }
   );
@@ -161,4 +165,14 @@ export function walk<T>(
   return returnCornersToDeck(movedState);
 }
 
-export function startGame<T>(state: GameState<T>): GameState<T> {}
+export function startGame<T>({ deck, gameMap }: GameState<T>): GameState<T> {
+  const newMiddleNeighbours = gameMap.getAdjacentPoints(...MIDDLE);
+  // reveal new planes
+  return newMiddleNeighbours.reduce(
+    (gameState, neighbour) => discover(neighbour, gameState),
+    {
+      gameMap,
+      deck,
+    }
+  );
+}
