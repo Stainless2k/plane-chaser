@@ -51,27 +51,27 @@ export const OPPOSITE_DIRECTION: Record<
 
 type GameState<T> = { gameMap: Grid<T>; deck: T[] };
 
-export enum HELLRIDE_DIRECTIONS {
-  UP_LEFT = 'UP_LEFT',
-  UP_RIGHT = 'UP_RIGHT',
-  DOWN_RIGHT = 'DOWN_RIGHT',
-  DOWN_LEFT = 'DOWN_LEFT',
-}
+// export enum HELLRIDE_DIRECTIONS {
+//   UP_LEFT = 'UP_LEFT',
+//   UP_RIGHT = 'UP_RIGHT',
+//   DOWN_RIGHT = 'DOWN_RIGHT',
+//   DOWN_LEFT = 'DOWN_LEFT',
+// }
 
 function draw<T>(deck: T[]): [T, T[]] {
   return takeRandom(deck);
 }
 
-function returnToDeck<T>(
-  [row, col]: Point,
-  { deck, gameMap }: GameState<T>
-): GameState<T> {
-  const removed = gameMap.get(row, col);
-  // nothing to return if the space is empty
-  if (!removed) return { deck, gameMap };
-
-  return { deck: deck.concat(removed), gameMap: gameMap.delete(row, col) };
-}
+// function returnToDeck<T>(
+//   [row, col]: Point,
+//   { deck, gameMap }: GameState<T>
+// ): GameState<T> {
+//   const removed = gameMap.get(row, col);
+//   // nothing to return if the space is empty
+//   if (!removed) return { deck, gameMap };
+//
+//   return { deck: deck.concat(removed), gameMap: gameMap.delete(row, col) };
+// }
 
 function returnCornersToDeck<T>({ deck, gameMap }: GameState<T>): GameState<T> {
   // remove empty so we dont put it into the deck

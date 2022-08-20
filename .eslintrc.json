@@ -25,5 +25,9 @@
       // These are the default values but feel free to customize
       "config": "tailwind.config.cjs"
     }
+  },
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   }
 }

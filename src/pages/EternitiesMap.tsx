@@ -1,27 +1,12 @@
 import React from 'react';
-import _ from 'lodash';
 import { GoodCard } from '../logic/types';
-import { planes, useGameStore } from './UseGameStore';
+import { useGameStore } from '../logic/UseGameStore';
 import { CARDINAL_DIRECTIONS } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 
-const FIELDSIZE_X = 7;
-const FIELDSIZE_Y = 7;
-
-export async function getStaticProps() {
-  return {
-    props: { cards: _.shuffle(planes) }, // will be passed to the page component as props
-  };
-}
-
-const middleNeighbours = [17, 23, 25, 31];
-const directions: Record<17 | 23 | 25 | 31, CARDINAL_DIRECTIONS> = {
-  '17': CARDINAL_DIRECTIONS.UP,
-  '23': CARDINAL_DIRECTIONS.LEFT,
-  '25': CARDINAL_DIRECTIONS.RIGHT,
-  '31': CARDINAL_DIRECTIONS.DOWN,
-};
+// const FIELDSIZE_X = 7;
+// const FIELDSIZE_Y = 7;
 
 function indexToDirection(index: number) {
   switch (index) {
@@ -70,7 +55,7 @@ function Maptile({
   );
 }
 
-export default function EternitiesMap({ cards }: { cards: GoodCard[] }) {
+export default function EternitiesMap() {
   const { gameMap, startGame } = useGameStore((state) => {
     return { gameMap: state.gameMap, startGame: state.startGame };
   });
