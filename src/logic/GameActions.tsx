@@ -1,8 +1,7 @@
 import { notEmpty } from './NotEmpty';
-import { CARDINAL_DIRECTIONS, Grid } from './Grid';
+import { CARDINAL_DIRECTIONS, Grid, Point } from './Grid';
 import { takeRandom } from './RNG';
 
-type Point = [number, number];
 const CORNERS: Point[] = [
   // UP LEFT
   [0, 0],
@@ -44,13 +43,6 @@ export const OPPOSITE_DIRECTION: Record<
   [CARDINAL_DIRECTIONS.RIGHT]: CARDINAL_DIRECTIONS.LEFT,
 };
 
-export const getNeighbours(row: number, col: number): Point[] {
-  const up = [row+1,col]
-  const down = [row-1,col]
-  const right = [row,col+1]
-  const left= [row,col-1]
-}
-
 type GameState<T> = { field: Grid<T>; deck: T[] };
 
 export enum HELLRIDE_DIRECTIONS {
@@ -65,7 +57,7 @@ function draw<T>(deck: T[]): [T, T[]] {
 }
 
 function returnToDeck<T>(
-  [ row, col ]: Point,
+  [row, col]: Point,
   { deck, field }: GameState<T>
 ): GameState<T> {
   const removed = field.get(row, col);
@@ -112,7 +104,7 @@ function returnOuterRowOrColToDeck<T>(
 }
 
 function discover<T>(
-  [ row, col ]: Point,
+  [row, col]: Point,
   { deck, field }: GameState<T>
 ): GameState<T> {
   // already discovered do nothing

@@ -1,9 +1,18 @@
+export type Point = [number, number];
+
 export enum CARDINAL_DIRECTIONS {
   UP = 'UP',
   DOWN = 'DOWN',
   LEFT = 'LEFT',
   RIGHT = 'RIGHT',
 }
+
+const DIRECTION_VECTORS: Record<CARDINAL_DIRECTIONS, Point> = {
+  [CARDINAL_DIRECTIONS.UP]: [-1, 0],
+  [CARDINAL_DIRECTIONS.RIGHT]: [0, +1],
+  [CARDINAL_DIRECTIONS.DOWN]: [+1, 0],
+  [CARDINAL_DIRECTIONS.LEFT]: [0, -1],
+};
 
 export class Grid<T> {
   readonly rowLength: number;
@@ -43,6 +52,18 @@ export class Grid<T> {
       rows.push(this.getRow(i));
     }
     return rows;
+  }
+
+  getAdjacentPoints(row: number, col: number): Point[] {
+    return Object.values(DIRECTION_VECTORS)
+      .map<Point>(([vRow, vCol]) => [row + vRow, col + vCol])
+      .filter(
+        ([rRow, rCol]) =>
+          rRow > -1 &&
+          rCol > -1 &&
+          rRow < this.rowLength &&
+          rCol < this.colLength
+      );
   }
 
   get(row: number, col: number): T | undefined {
@@ -106,7 +127,7 @@ export class Grid<T> {
     return new Grid(this.rowLength, this.colLength, newCells);
   }
 
-  deleteMany(cords: [number, number][]) {
+  deleteMany(cords: Point[]) {
     const newCells = this.__cells.slice(0);
 
     cords.forEach(([row, col]) => {
