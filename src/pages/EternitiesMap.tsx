@@ -5,8 +5,8 @@ import { CARDINAL_DIRECTIONS } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 
-// const FIELDSIZE_X = 7;
-// const FIELDSIZE_Y = 7;
+const FIELDSIZE_X = 7;
+const FIELDSIZE_Y = 7;
 
 function indexToDirection(index: number) {
   switch (index) {
@@ -23,31 +23,30 @@ function indexToDirection(index: number) {
   return undefined;
 }
 
-function Maptile({
-  card,
-  index,
-}: {
-  card: GoodCard | undefined;
-  index: number;
-}) {
+function indexToCords(index: number) {
+  const x = index % FIELDSIZE_X;
+  const y = Math.floor(index / FIELDSIZE_Y);
+  return { x, y };
+}
+
+function MapTile({ card, index }: { card: GoodCard; index: number }) {
   const walk = useGameStore((state) => state.walk);
   const { error, data } = useFetchCardPicture(card);
-
-  if (!card)
-    return (
-      <div className={'flex items-center justify-center '}>
-        <div>EMPTY: {index}</div>
-      </div>
-    );
+  const { x, y } = indexToCords(index);
 
   const direction = indexToDirection(index);
-
   const onClick = direction ? () => walk(direction) : undefined;
+  const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
 
   return (
     <div
       className={'flex items-center justify-center bg-blue-600'}
-      style={{ aspectRatio: planeAspectRatio.toString() }}
+      style={{
+        aspectRatio: planeAspectRatio.toString(),
+        gridRow: x + 1,
+        gridColumn: y + 1,
+        ...borderStyle,
+      }}
       onClick={onClick}
     >
       <PlaneCard data={data} error={error?.message} />
@@ -56,8 +55,8 @@ function Maptile({
 }
 
 export default function EternitiesMap() {
-  const { gameMap, startGame } = useGameStore((state) => {
-    return { gameMap: state.gameMap, startGame: state.startGame };
+  const { gameMap, startGame } = useGameStore(({ gameMap, startGame }) => {
+    return { gameMap, startGame };
   });
 
   return (
@@ -70,9 +69,11 @@ export default function EternitiesMap() {
         className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
         style={{ aspectRatio: planeAspectRatio.toString() }}
       >
-        {gameMap.toArray().map((card, index) => (
-          <Maptile card={card} index={index} key={card?.name ?? index} />
-        ))}
+        {gameMap
+          .toArray()
+          .map((card, index) =>
+            card ? <MapTile card={card} index={index} key={card.name} /> : null
+          )}
       </div>
       <button
         className={'absolute top-0 left-0 bg-green-600'}
