@@ -111,7 +111,14 @@ export default function EternitiesMap() {
     >
       <PlayingGrid gameMap={gameMap} />
       <div className={'absolute top-0 left-0 bg-green-600'}>
-        <button onClick={() => startGame()}>START</button>
+        <button
+          onClick={(event) => {
+            startGame();
+            event.currentTarget.remove();
+          }}
+        >
+          START
+        </button>
         <button onClick={() => document.documentElement.requestFullscreen()}>
           FULLSCREEN
         </button>
