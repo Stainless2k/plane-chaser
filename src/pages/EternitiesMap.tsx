@@ -30,7 +30,7 @@ function indexToCords(index: number) {
   return { x, y };
 }
 
-async function zoomMiddle(ref: React.RefObject<HTMLDivElement>) {
+async function zoomElement(ref: React.RefObject<HTMLDivElement>) {
   (await import('../logic/zoom')).zoom.to({
     element: ref.current,
   });
@@ -47,7 +47,7 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
   )();
 
   const isMiddle = index === 24 ? midRef : undefined;
-  const onClick = isMiddle ? () => zoomMiddle(midRef) : undefined;
+  const onClick = isMiddle ? () => zoomElement(midRef) : undefined;
 
   const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
   const { x, y } = indexToCords(index);
