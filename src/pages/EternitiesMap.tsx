@@ -93,6 +93,9 @@ export default function EternitiesMap() {
       </div>
       <div className={'absolute top-0 left-0 bg-green-600'}>
         <button onClick={() => startGame()}>START</button>
+        <button onClick={() => document.documentElement.requestFullscreen()}>
+          FULLSCREEN
+        </button>
       </div>
     </div>
   );
