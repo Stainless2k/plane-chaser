@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { GoodCard } from '../logic/types';
 import { useGameStore } from '../logic/UseGameStore';
-import { CARDINAL_DIRECTIONS } from '../logic/Grid';
+import { CARDINAL_DIRECTIONS, Grid } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 import { useLongPress } from 'use-long-press';
@@ -70,6 +70,21 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
   );
 }
 
+function PlayingGrid({ gameMap }: { gameMap: Grid<GoodCard> }) {
+  return (
+    <div
+      className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
+      style={{ aspectRatio: planeAspectRatio.toString() }}
+    >
+      {gameMap
+        .toArray()
+        .map((card, index) =>
+          card ? <MapTile card={card} index={index} key={card.name} /> : null
+        )}
+    </div>
+  );
+}
+
 export default function EternitiesMap() {
   const { gameMap, startGame } = useGameStore(({ gameMap, startGame }) => {
     return { gameMap, startGame };
@@ -81,16 +96,7 @@ export default function EternitiesMap() {
         'background-animate flex h-screen w-screen items-center justify-center'
       }
     >
-      <div
-        className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
-        style={{ aspectRatio: planeAspectRatio.toString() }}
-      >
-        {gameMap
-          .toArray()
-          .map((card, index) =>
-            card ? <MapTile card={card} index={index} key={card.name} /> : null
-          )}
-      </div>
+      <PlayingGrid gameMap={gameMap} />
       <div className={'absolute top-0 left-0 bg-green-600'}>
         <button onClick={() => startGame()}>START</button>
         <button onClick={() => document.documentElement.requestFullscreen()}>
