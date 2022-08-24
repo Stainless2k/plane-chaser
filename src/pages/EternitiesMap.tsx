@@ -5,6 +5,7 @@ import { CARDINAL_DIRECTIONS, Grid } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 import { useLongPress } from 'use-long-press';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 
 const FIELD_SIZE_X = 7;
 const FIELD_SIZE_Y = 7;
@@ -36,7 +37,7 @@ async function zoomElement(ref: React.RefObject<HTMLDivElement>) {
   });
 }
 
-function MapTile({ card, index }: { card: GoodCard; index: number }) {
+function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
   const midRef = useRef<HTMLDivElement>(null);
   const walk = useGameStore((state) => state.walk);
   const { error, data } = useFetchCardPicture(card);
@@ -54,6 +55,7 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
 
   return (
     <div
+      {...rest}
       ref={isMiddle}
       onClick={onClick}
       {...longPressWalk}
@@ -71,17 +73,24 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
 }
 
 function PlayingGrid({ gameMap }: { gameMap: Grid<GoodCard> }) {
+  const gameMapArray = gameMap.toArray();
+  const key = gameMapArray.map((c) => c?.name ?? 'X').join(' ');
+
   return (
-    <div
-      className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
-      style={{ aspectRatio: planeAspectRatio.toString() }}
-    >
-      {gameMap
-        .toArray()
-        .map((card, index) =>
-          card ? <MapTile card={card} index={index} key={card.name} /> : null
+    <Flipper flipKey={key}>
+      <div
+        className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
+        style={{ aspectRatio: planeAspectRatio.toString() }}
+      >
+        {gameMapArray.map((card, index) =>
+          card ? (
+            <Flipped flipId={card.name} key={card.name}>
+              <MapTile card={card} index={index} />
+            </Flipped>
+          ) : null
         )}
-    </div>
+      </div>
+    </Flipper>
   );
 }
 
