@@ -5,7 +5,13 @@ export const planeAspectRatio = 670 / 974;
 function RotatedCard({ src }: { src: string }) {
   return (
     <div className={'h-full w-full overflow-hidden'}>
-      <Image src={src} width={670} height={974} unoptimized />
+      <Image
+        src={src}
+        width={670}
+        height={974}
+        unoptimized
+        onContextMenu={(event) => event.preventDefault()}
+      />
     </div>
   );
 }
