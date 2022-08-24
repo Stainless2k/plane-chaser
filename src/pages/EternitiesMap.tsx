@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { GoodCard } from '../logic/types';
 import { useGameStore } from '../logic/UseGameStore';
 import { CARDINAL_DIRECTIONS } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 
-const FIELDSIZE_X = 7;
-const FIELDSIZE_Y = 7;
+const FIELD_SIZE_X = 7;
+const FIELD_SIZE_Y = 7;
 
 function indexToDirection(index: number) {
   switch (index) {
@@ -24,22 +24,35 @@ function indexToDirection(index: number) {
 }
 
 function indexToCords(index: number) {
-  const x = index % FIELDSIZE_X;
-  const y = Math.floor(index / FIELDSIZE_Y);
+  const x = index % FIELD_SIZE_X;
+  const y = Math.floor(index / FIELD_SIZE_Y);
   return { x, y };
 }
 
+async function zoomMiddle(ref: React.RefObject<HTMLDivElement>) {
+  (await import('../logic/zoom')).zoom.to({
+    element: ref.current,
+  });
+}
+
 function MapTile({ card, index }: { card: GoodCard; index: number }) {
+  const midRef = useRef<HTMLDivElement>(null);
   const walk = useGameStore((state) => state.walk);
   const { error, data } = useFetchCardPicture(card);
   const { x, y } = indexToCords(index);
 
   const direction = indexToDirection(index);
-  const onClick = direction ? () => walk(direction) : undefined;
   const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
+  const isMiddle = index === 24 ? midRef : undefined;
+  const onClick = isMiddle
+    ? () => zoomMiddle(midRef)
+    : direction
+    ? () => walk(direction)
+    : undefined;
 
   return (
     <div
+      ref={isMiddle}
       className={'flex items-center justify-center bg-blue-600'}
       style={{
         aspectRatio: planeAspectRatio.toString(),
@@ -75,12 +88,9 @@ export default function EternitiesMap() {
             card ? <MapTile card={card} index={index} key={card.name} /> : null
           )}
       </div>
-      <button
-        className={'absolute top-0 left-0 bg-green-600'}
-        onClick={() => startGame()}
-      >
-        START
-      </button>
+      <div className={'absolute top-0 left-0 bg-green-600'}>
+        <button onClick={() => startGame()}>START</button>
+      </div>
     </div>
   );
 }
