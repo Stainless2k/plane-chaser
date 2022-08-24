@@ -77,7 +77,11 @@ function PlayingGrid({ gameMap }: { gameMap: Grid<GoodCard> }) {
   const key = gameMapArray.map((c) => c?.name ?? 'X').join(' ');
 
   return (
-    <Flipper flipKey={key}>
+    <Flipper
+      flipKey={key}
+      spring={'wobbly'}
+      staggerConfig={{ default: { reverse: true } }}
+    >
       <div
         className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
         style={{ aspectRatio: planeAspectRatio.toString() }}
