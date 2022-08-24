@@ -4,6 +4,7 @@ import { useGameStore } from '../logic/UseGameStore';
 import { CARDINAL_DIRECTIONS } from '../logic/Grid';
 import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
+import { useLongPress } from 'use-long-press';
 
 const FIELD_SIZE_X = 7;
 const FIELD_SIZE_Y = 7;
@@ -39,20 +40,23 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
   const midRef = useRef<HTMLDivElement>(null);
   const walk = useGameStore((state) => state.walk);
   const { error, data } = useFetchCardPicture(card);
-  const { x, y } = indexToCords(index);
 
   const direction = indexToDirection(index);
-  const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
+  const longPressWalk = useLongPress(
+    direction ? () => walk(direction) : null
+  )();
+
   const isMiddle = index === 24 ? midRef : undefined;
-  const onClick = isMiddle
-    ? () => zoomMiddle(midRef)
-    : direction
-    ? () => walk(direction)
-    : undefined;
+  const onClick = isMiddle ? () => zoomMiddle(midRef) : undefined;
+
+  const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
+  const { x, y } = indexToCords(index);
 
   return (
     <div
       ref={isMiddle}
+      onClick={onClick}
+      {...longPressWalk}
       className={'flex items-center justify-center bg-blue-600'}
       style={{
         aspectRatio: planeAspectRatio.toString(),
@@ -60,7 +64,6 @@ function MapTile({ card, index }: { card: GoodCard; index: number }) {
         gridColumn: y + 1,
         ...borderStyle,
       }}
-      onClick={onClick}
     >
       <PlaneCard data={data} error={error?.message} />
     </div>
