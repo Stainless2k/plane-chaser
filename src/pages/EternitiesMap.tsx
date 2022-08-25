@@ -38,7 +38,7 @@ async function zoomElement(ref: React.RefObject<HTMLDivElement>) {
 }
 
 function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
-  const midRef = useRef<HTMLDivElement>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
   const walk = useGameStore((state) => state.walk);
   const { error, data } = useFetchCardPicture(card);
 
@@ -47,16 +47,20 @@ function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
     direction ? () => walk(direction) : null
   )();
 
-  const isMiddle = index === 24 ? midRef : undefined;
-  const onClick = isMiddle ? () => zoomElement(midRef) : undefined;
+  const isMiddle = index === 24;
+  const onClick = () => zoomElement(elementRef);
 
-  const borderStyle = direction ? { border: '2px solid #fff600' } : undefined;
+  const borderStyle = isMiddle
+    ? { border: '2px solid #fc037f' }
+    : direction
+    ? { border: '2px solid #fff600' }
+    : undefined;
   const { x, y } = indexToCords(index);
 
   return (
     <div
       {...rest}
-      ref={isMiddle}
+      ref={elementRef}
       onClick={onClick}
       {...longPressWalk}
       className={'flex items-center justify-center bg-blue-600'}
