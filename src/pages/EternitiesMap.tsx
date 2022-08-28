@@ -71,7 +71,7 @@ function MapTile({
       {...rest}
       {...longPressWalk}
       onClick={() => zoomToElement(elementRef?.current ?? '', 4)}
-      className={'flex items-center justify-center bg-blue-600'}
+      className={'z-10 flex items-center justify-center bg-blue-600'}
       style={{
         aspectRatio: planeAspectRatio.toString(),
         gridRow: x + 1,
@@ -127,33 +127,37 @@ export default function EternitiesMap() {
 
   return (
     <TransformWrapper doubleClick={{ mode: 'reset' }}>
-      {({ zoomToElement }) => (
-        <>
-          <TransformComponent>
-            <div
-              className={
-                'background-animate -z-40 flex h-screen w-screen items-center justify-center'
-              }
-            >
-              <PlayingGrid gameMap={gameMap} zoomToElement={zoomToElement} />
-              <div className={'absolute top-0 left-0 bg-green-600'}>
-                <button
-                  onClick={(event) => {
-                    startGame();
-                    event.currentTarget.remove();
-                  }}
-                >
-                  START
-                </button>
-                <button
-                  onClick={() => document.documentElement.requestFullscreen()}
-                >
-                  FULLSCREEN
-                </button>
-              </div>
+      {({ zoomToElement, resetTransform }) => (
+        <TransformComponent>
+          <div
+            className={
+              'background-animate flex h-screen w-screen items-center justify-center'
+            }
+          >
+            <PlayingGrid gameMap={gameMap} zoomToElement={zoomToElement} />
+            <div className={'absolute top-0 left-0 z-10 bg-green-600'}>
+              <button
+                onClick={(event) => {
+                  startGame();
+                  event.currentTarget.remove();
+                }}
+              >
+                START
+              </button>
+              <button
+                onClick={() => document.documentElement.requestFullscreen()}
+              >
+                FULLSCREEN
+              </button>
             </div>
-          </TransformComponent>
-        </>
+          </div>
+          <div
+            className={'absolute h-screen w-screen'}
+            onClick={() => {
+              resetTransform();
+            }}
+          ></div>
+        </TransformComponent>
       )}
     </TransformWrapper>
   );
