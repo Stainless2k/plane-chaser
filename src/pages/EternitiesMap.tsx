@@ -14,6 +14,13 @@ import {
 
 const FIELD_SIZE_X = 7;
 const FIELD_SIZE_Y = 7;
+const INFO_TEXT = `pink is the current plane
+long press on yellow to walk there
+click plane to zoom
+click on background to reset zoom
+double click to reset zoom
+🤯 🤯 🤯 🤯 start by pressing start🤯 🤯 🤯 🤯 
+`;
 
 function indexToDirection(index: number) {
   switch (index) {
@@ -135,8 +142,9 @@ export default function EternitiesMap() {
             }
           >
             <PlayingGrid gameMap={gameMap} zoomToElement={zoomToElement} />
-            <div className={'absolute top-0 left-0 z-10 bg-green-600'}>
+            <div className={'absolute top-0 left-0 z-10 flex gap-0.5'}>
               <button
+                className={'bg-red-700'}
                 onClick={(event) => {
                   startGame();
                   event.currentTarget.remove();
@@ -145,12 +153,20 @@ export default function EternitiesMap() {
                 START
               </button>
               <button
+                className={'bg-green-600'}
                 onClick={() => document.documentElement.requestFullscreen()}
               >
                 FULLSCREEN
               </button>
+              <button
+                className={'bg-blue-400'}
+                onClick={() => alert(INFO_TEXT)}
+              >
+                INFO
+              </button>
             </div>
           </div>
+          {/*not nice since now everything needs z index*/}
           <div
             className={'absolute h-screen w-screen'}
             onClick={() => {
