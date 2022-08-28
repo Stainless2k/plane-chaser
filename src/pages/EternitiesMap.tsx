@@ -6,6 +6,11 @@ import { planeAspectRatio, PlaneCard } from '../comp/PlaneCard';
 import { useFetchCardPicture } from '../logic/useFetchCardPicture';
 import { useLongPress } from 'use-long-press';
 import { Flipped, Flipper } from 'react-flip-toolkit';
+import {
+  ReactZoomPanPinchHandlers,
+  TransformComponent,
+  TransformWrapper,
+} from 'react-zoom-pan-pinch';
 
 const FIELD_SIZE_X = 7;
 const FIELD_SIZE_Y = 7;
@@ -31,15 +36,19 @@ function indexToCords(index: number) {
   return { x, y };
 }
 
-async function zoomElement(ref: React.RefObject<HTMLDivElement>) {
-  (await import('../logic/zoom')).zoom.to({
-    element: ref.current,
-  });
-}
-
-function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
-  const elementRef = useRef<HTMLDivElement>(null);
+function MapTile({
+  card,
+  index,
+  zoomToElement,
+  ...rest
+}: {
+  card: GoodCard;
+  index: number;
+  zoomToElement: ReactZoomPanPinchHandlers['zoomToElement'];
+}) {
   const walk = useGameStore((state) => state.walk);
+  const elementRef = useRef<HTMLDivElement>(null);
+
   const { error, data } = useFetchCardPicture(card);
 
   const direction = indexToDirection(index);
@@ -48,7 +57,6 @@ function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
   )();
 
   const isMiddle = index === 24;
-  const onClick = () => zoomElement(elementRef);
 
   const borderStyle = isMiddle
     ? { border: '2px solid #fc037f' }
@@ -59,10 +67,10 @@ function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
 
   return (
     <div
-      {...rest}
       ref={elementRef}
-      onClick={onClick}
+      {...rest}
       {...longPressWalk}
+      onClick={() => zoomToElement(elementRef?.current ?? '', 4)}
       className={'flex items-center justify-center bg-blue-600'}
       style={{
         aspectRatio: planeAspectRatio.toString(),
@@ -76,7 +84,13 @@ function MapTile({ card, index, ...rest }: { card: GoodCard; index: number }) {
   );
 }
 
-function PlayingGrid({ gameMap }: { gameMap: Grid<GoodCard> }) {
+function PlayingGrid({
+  gameMap,
+  zoomToElement,
+}: {
+  gameMap: Grid<GoodCard>;
+  zoomToElement: ReactZoomPanPinchHandlers['zoomToElement'];
+}) {
   const gameMapArray = gameMap.toArray();
   const key = gameMapArray.map((c) => c?.name ?? 'X').join(' ');
 
@@ -93,7 +107,11 @@ function PlayingGrid({ gameMap }: { gameMap: Grid<GoodCard> }) {
         {gameMapArray.map((card, index) =>
           card ? (
             <Flipped flipId={card.name} key={card.name}>
-              <MapTile card={card} index={index} />
+              <MapTile
+                card={card}
+                index={index}
+                zoomToElement={zoomToElement}
+              />
             </Flipped>
           ) : null
         )}
@@ -108,25 +126,35 @@ export default function EternitiesMap() {
   });
 
   return (
-    <div
-      className={
-        'background-animate flex h-screen w-screen items-center justify-center'
-      }
-    >
-      <PlayingGrid gameMap={gameMap} />
-      <div className={'absolute top-0 left-0 bg-green-600'}>
-        <button
-          onClick={(event) => {
-            startGame();
-            event.currentTarget.remove();
-          }}
-        >
-          START
-        </button>
-        <button onClick={() => document.documentElement.requestFullscreen()}>
-          FULLSCREEN
-        </button>
-      </div>
-    </div>
+    <TransformWrapper doubleClick={{ mode: 'reset' }}>
+      {({ zoomToElement }) => (
+        <>
+          <TransformComponent>
+            <div
+              className={
+                'background-animate -z-40 flex h-screen w-screen items-center justify-center'
+              }
+            >
+              <PlayingGrid gameMap={gameMap} zoomToElement={zoomToElement} />
+              <div className={'absolute top-0 left-0 bg-green-600'}>
+                <button
+                  onClick={(event) => {
+                    startGame();
+                    event.currentTarget.remove();
+                  }}
+                >
+                  START
+                </button>
+                <button
+                  onClick={() => document.documentElement.requestFullscreen()}
+                >
+                  FULLSCREEN
+                </button>
+              </div>
+            </div>
+          </TransformComponent>
+        </>
+      )}
+    </TransformWrapper>
   );
 }
