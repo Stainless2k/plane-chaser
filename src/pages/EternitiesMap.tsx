@@ -204,6 +204,7 @@ export default function EternitiesMap() {
     <TransformWrapper
       doubleClick={{ mode: 'reset' }}
       panning={{ disabled: true }}
+      pinch={{ disabled: true }}
     >
       {({ zoomToElement, resetTransform }) => (
         <TransformComponent>
