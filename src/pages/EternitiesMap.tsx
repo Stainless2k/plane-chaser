@@ -130,6 +130,7 @@ function MapTile({
     <div
       {...rest}
       {...longPressWalk}
+      id={isMiddle ? 'middle' : undefined}
       onClick={(event) => zoomToElement(event.currentTarget, 4)}
       className={'z-10 flex items-center justify-center bg-blue-600'}
       style={{
@@ -165,6 +166,7 @@ function PlayingGrid({
       spring={'wobbly'}
       staggerConfig={{ default: { reverse: true } }}
       handleEnterUpdateDelete={animationOrder}
+      onComplete={() => zoomToElement('middle', 4)}
     >
       <div
         className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
@@ -199,10 +201,7 @@ export default function EternitiesMap() {
   });
 
   return (
-    <TransformWrapper
-      doubleClick={{ mode: 'reset' }}
-      panning={{ disabled: true }}
-    >
+    <TransformWrapper doubleClick={{ mode: 'reset' }}>
       {({ zoomToElement, resetTransform }) => (
         <TransformComponent>
           <div
