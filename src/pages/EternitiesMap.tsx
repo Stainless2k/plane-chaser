@@ -48,7 +48,7 @@ function indexToCords(index: number) {
   return { x, y };
 }
 
-const animateElementIn: CallbackFlippedProps['onAppear'] = (el, i) =>
+const animateElementIn: CallbackFlippedProps['onAppear'] = (el) =>
   anime({
     targets: el,
     opacity: 1,
