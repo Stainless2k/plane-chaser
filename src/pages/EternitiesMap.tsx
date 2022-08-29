@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { GoodCard } from '../logic/types';
 import { useGameStore } from '../logic/UseGameStore';
 import { CARDINAL_DIRECTIONS, Grid } from '../logic/Grid';
@@ -11,6 +11,11 @@ import {
   TransformComponent,
   TransformWrapper,
 } from 'react-zoom-pan-pinch';
+import anime from 'animejs';
+import {
+  CallbackFlippedProps,
+  HandleEnterUpdateDelete,
+} from 'flip-toolkit/lib/types';
 
 const FIELD_SIZE_X = 7;
 const FIELD_SIZE_Y = 7;
@@ -43,24 +48,73 @@ function indexToCords(index: number) {
   return { x, y };
 }
 
+const animateElementIn: CallbackFlippedProps['onAppear'] = (el, i) =>
+  anime({
+    targets: el,
+    opacity: 1,
+    duration: 500,
+    easing: 'easeOutSine',
+    scale: [0, 1],
+    rotate: '5turn',
+  });
+
+const animateElementOut: CallbackFlippedProps['onExit'] = (
+  el,
+  i,
+  onComplete
+) => {
+  // not sure why this is needed
+  el.style.position = '';
+  el.style.width = '';
+  el.style.height = '';
+  anime({
+    targets: el,
+    opacity: 0,
+    duration: 500,
+    easing: 'easeOutSine',
+    complete: onComplete,
+    rotate: '5turn',
+    scale: 0,
+  });
+};
+
+const animationOrder: HandleEnterUpdateDelete = async ({
+  animateEnteringElements,
+  animateExitingElements,
+  animateFlippedElements,
+  hideEnteringElements,
+}) => {
+  hideEnteringElements();
+  await animateExitingElements();
+  animateFlippedElements();
+  animateEnteringElements();
+};
+
 function MapTile({
   card,
   index,
   zoomToElement,
+  resetTransform,
   ...rest
 }: {
   card: GoodCard;
   index: number;
   zoomToElement: ReactZoomPanPinchHandlers['zoomToElement'];
+  resetTransform: ReactZoomPanPinchHandlers['resetTransform'];
 }) {
   const walk = useGameStore((state) => state.walk);
-  const elementRef = useRef<HTMLDivElement>(null);
 
   const { error, data } = useFetchCardPicture(card);
 
   const direction = indexToDirection(index);
   const longPressWalk = useLongPress(
-    direction ? () => walk(direction) : null
+    direction
+      ? async () => {
+          resetTransform();
+          await new Promise((r) => setTimeout(r, 300));
+          walk(direction);
+        }
+      : null
   )();
 
   const isMiddle = index === 24;
@@ -74,15 +128,17 @@ function MapTile({
 
   return (
     <div
-      ref={elementRef}
       {...rest}
       {...longPressWalk}
-      onClick={() => zoomToElement(elementRef?.current ?? '', 4)}
+      onClick={(event) => zoomToElement(event.currentTarget, 4)}
       className={'z-10 flex items-center justify-center bg-blue-600'}
       style={{
         aspectRatio: planeAspectRatio.toString(),
         gridRow: x + 1,
         gridColumn: y + 1,
+        transitionProperty: 'border-color',
+        transitionDuration: '1s',
+        transitionDelay: '0.5s',
         ...borderStyle,
       }}
     >
@@ -94,9 +150,11 @@ function MapTile({
 function PlayingGrid({
   gameMap,
   zoomToElement,
+  resetTransform,
 }: {
   gameMap: Grid<GoodCard>;
   zoomToElement: ReactZoomPanPinchHandlers['zoomToElement'];
+  resetTransform: ReactZoomPanPinchHandlers['resetTransform'];
 }) {
   const gameMapArray = gameMap.toArray();
   const key = gameMapArray.map((c) => c?.name ?? 'X').join(' ');
@@ -106,6 +164,7 @@ function PlayingGrid({
       flipKey={key}
       spring={'wobbly'}
       staggerConfig={{ default: { reverse: true } }}
+      handleEnterUpdateDelete={animationOrder}
     >
       <div
         className={'grid max-h-screen grid-cols-7 grid-rows-7 gap-0.5'}
@@ -113,11 +172,18 @@ function PlayingGrid({
       >
         {gameMapArray.map((card, index) =>
           card ? (
-            <Flipped flipId={card.name} key={card.name}>
+            <Flipped
+              flipId={card.name}
+              key={card.name}
+              onExit={animateElementOut}
+              onAppear={animateElementIn}
+              transformOrigin={'center'}
+            >
               <MapTile
                 card={card}
                 index={index}
                 zoomToElement={zoomToElement}
+                resetTransform={resetTransform}
               />
             </Flipped>
           ) : null
@@ -133,7 +199,10 @@ export default function EternitiesMap() {
   });
 
   return (
-    <TransformWrapper doubleClick={{ mode: 'reset' }}>
+    <TransformWrapper
+      doubleClick={{ mode: 'reset' }}
+      panning={{ disabled: true }}
+    >
       {({ zoomToElement, resetTransform }) => (
         <TransformComponent>
           <div
@@ -141,7 +210,11 @@ export default function EternitiesMap() {
               'background-animate flex h-screen w-screen items-center justify-center'
             }
           >
-            <PlayingGrid gameMap={gameMap} zoomToElement={zoomToElement} />
+            <PlayingGrid
+              gameMap={gameMap}
+              zoomToElement={zoomToElement}
+              resetTransform={resetTransform}
+            />
             <div className={'absolute top-0 left-0 z-10 flex gap-0.5'}>
               <button
                 className={'bg-red-700'}

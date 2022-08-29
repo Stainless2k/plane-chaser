@@ -40,7 +40,7 @@ export function PlaneCard({
   if (error) return <div>An error has occurred: + {error}</div>;
   if (data)
     content = (
-      <div key={data} className={'animate-pop h-full w-full'}>
+      <div className={'h-full w-full'}>
         <RotatedCard src={data} />
       </div>
     );
